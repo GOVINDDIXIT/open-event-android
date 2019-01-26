@@ -3,9 +3,13 @@ package org.fossasia.openevent.general.settings
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat
@@ -29,14 +33,15 @@ class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
         preferenceChange(evt)
     }
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        view?.setBackgroundColor(Color.WHITE)
+        return view
+    }
+
     override fun onCreatePreferencesFix(savedInstanceState: Bundle?, rootKey: String?) {
         // Load the preferences from an XML resource
         setPreferencesFromResource(R.xml.settings, rootKey)
-
-        val activity = activity as? AppCompatActivity
-        activity?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        activity?.supportActionBar?.title = "Settings"
-        setHasOptionsMenu(true)
 
         // Set Email
         email = arguments?.getString(EMAIL)
@@ -65,6 +70,10 @@ class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
             // Logout Dialog shown
             showDialog()
             return true
+        }
+        if (preference?.key == resources.getString(R.string.key_legal)) {
+             val legalFragment = LegalFragment()
+            activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.frameContainer, legalFragment)?.addToBackStack(null)?.commit()
         }
         return false
     }
@@ -107,5 +116,13 @@ class SettingsFragment : PreferenceFragmentCompat(), PreferenceChangeListener {
                 .setNegativeButton(resources.getString(R.string.cancel)) { dialog, _ -> dialog.cancel() }
         val alert = builder.create()
         alert.show()
+    }
+
+    override fun onResume() {
+        val activity =  activity as? AppCompatActivity
+        activity?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        activity?.supportActionBar?.title = "Settings"
+        setHasOptionsMenu(true)
+        super.onResume()
     }
 }
